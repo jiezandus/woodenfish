@@ -5,8 +5,14 @@ body {
   background-color: white;
   font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', sans-serif;
   text-align: center;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  position: relative; /* Added for absolute positioning context */
 }
 
+/* 1. Instruction at the top */
 #instruction {
   font-size: 1.5em;
   color: #555;
@@ -15,69 +21,62 @@ body {
   transition: opacity 0.5s;
 }
 
+/* 3. Countdown at 30% height */
 #countdown {
-  font-size: 2em;
-  color: #aaa;
-  margin-top: 10px;
+  font-size: 2.8em;
+  color: #424242;
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
+/* 2. Fish at 70% height */
 #fish {
   width: 150px;
-  position: relative;
+  position: absolute;
+  top: 70%; /* Changed from bottom to top for more precise positioning */
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
   z-index: 2;
-  animation: floatFish 5s ease-in-out infinite; /* Floating animation for angry fish */
+  animation: floatFish 5s ease-in-out infinite;
 }
 
 @keyframes floatFish {
   0% {
-    transform: translateY(0);
+    transform: translateX(-50%) translateY(-50%);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateX(-50%) translateY(-60%);
   }
   100% {
-    transform: translateY(0);
+    transform: translateX(-50%) translateY(-50%);
   }
 }
 
-#fish.faded {
-  opacity: 0.3;
-  z-index: 0;
-}
-
-#fish-container {
+/* 4. Ending text and button at 30% height */
+#final {
   position: absolute;
-  top: 50%;
+  top: 30%;
   left: 50%;
   transform: translate(-50%, -50%);
+  font-size: 1.5em;
+  display: none;
+  color: #333;
+  text-align: center;
 }
 
-.emoji {
-  position: absolute;
-  font-size: 2em;
-  opacity: 0.8;
-  pointer-events: none;
-  animation: floatUp 2s linear forwards;
-}
-
-@keyframes floatUp {
-  0% {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-200px) translateX(var(--x-offset)) scale(1.5);
-    opacity: 0;
-  }
-}
-
+/* 5. Text clouds within window bounds */
 .text-cloud {
   position: absolute;
   color: rgba(100, 100, 100, 0.3);
-  font-size: 1.2em;
+  font-size: 1.8em;
   font-style: italic;
   animation: driftDown 4s ease-in forwards;
   z-index: 1;
+  /* Random but bounded positioning */
+  left: calc(10% + (80% * var(--random-x)));
+  top: calc(10% + (80% * var(--random-y)));
 }
 
 @keyframes driftDown {
@@ -89,27 +88,43 @@ body {
     opacity: 1;
   }
   100% {
-    transform: translateY(100px) scale(2);
+    transform: translateY(10vh) scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Rest of the existing styles */
+#fish.faded {
+  opacity: 1;
+  z-index: 0;
+}
+
+.emoji {
+  position: absolute;
+  font-size: 2em;
+  opacity: 0.8;
+  z-index: 3;
+  pointer-events: none;
+  animation: floatUp 2s linear forwards;
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-20vh) scale(1.5);
     opacity: 0;
   }
 }
 
 #score {
   position: absolute;
-  top: 10px;
-  right: 20px;
-  font-size: 1.2em;
-}
-
-#final {
-  position: absolute;
-  top: 50%;
+  bottom: 20px;
   left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 1.5em;
-  display: none;
-  color: #333;
-  text-align: center;
+  transform: translateX(-50%);
+  font-size: 1.2em;
 }
 
 #replay {
@@ -126,4 +141,27 @@ body {
 
 #replay:hover {
   background-color: #ddd;
+}
+
+#flash {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.5em;
+  color: orange;
+  opacity: 1;
+  animation: flashAnimation 1s ease-in-out infinite;
+}
+
+@keyframes flashAnimation {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }

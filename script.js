@@ -8,8 +8,9 @@ let angryFish = 'images/angry-fish.png';
 let calmFish = 'images/calm-fish.png';
 
 let clicks = 0;
-let cumulative = -200;  // Start score at -200 each time
+let cumulative = 0;
 let gameStarted = false;
+const INITIAL_PENALTY = -200;
 
 const emojis = ['🌿', '🧘', '🌱', '😌', '🌸'];
 const texts = [
@@ -20,20 +21,54 @@ const texts = [
   "Anger fades..."
 ];
 
-let textTimeout; // Track the text cloud timeout to prevent overlap
+let textTimeout;
+let gameInterval;
 
-// Start the game and reset the UI elements
+// Initialize game state
+function initializeGame() {
+  clicks = 0;
+  gameStarted = false;
+  clicksEl.textContent = clicks;
+  final.style.display = 'none';
+  fish.src = angryFish;
+  countdown.textContent = '';
+  instruction.style.opacity = 1;
+  
+  // Check if we're continuing from a previous game
+  const isFreshLoad = !sessionStorage.getItem('gameInProgress');
+  if (isFreshLoad) {
+    cumulative = 0;
+  }
+  cumulativeEl.textContent = cumulative;
+}
+
 function startGame() {
+  // Mark game as in progress
+  sessionStorage.setItem('gameInProgress', 'true');
+  
   let timeLeft = 3;
   countdown.textContent = timeLeft;
-  instruction.style.opacity = 1; // Ensure instruction text is visible
+  
+  // Show penalty flash
+  const flashText = document.createElement('div');
+  flashText.id = 'flash';
+  flashText.textContent = INITIAL_PENALTY;
+  document.body.appendChild(flashText);
+
   const countdownInterval = setInterval(() => {
     timeLeft--;
     if (timeLeft === 0) {
       clearInterval(countdownInterval);
       countdown.textContent = 30;
-      instruction.style.opacity = 0;  // Hide the instruction
+      instruction.style.opacity = 0;
       gameStarted = true;
+      flashText.remove();
+      
+      // Apply initial penalty only on fresh game start
+      cumulative += INITIAL_PENALTY;
+      cumulativeEl.textContent = cumulative;
+      
+      
       startClicking();
     } else {
       countdown.textContent = timeLeft;
@@ -43,38 +78,49 @@ function startGame() {
 
 function startClicking() {
   let timeLeft = 30;
-  const gameInterval = setInterval(() => {
+  gameInterval = setInterval(() => {
     timeLeft--;
     countdown.textContent = timeLeft;
     if (timeLeft <= 0) {
-      clearInterval(gameInterval);
-      gameStarted = false;
-      cumulative += clicks;
-      cumulativeEl.textContent = cumulative;
-      clicksEl.textContent = clicks;
-      final.style.display = 'block';
-      fadeFish();
-      
-      // Save the updated score to localStorage
-      localStorage.setItem('cumulativeScore', cumulative);
+      endGame();
     }
   }, 1000);
 }
 
-function fadeFish() {
-  fish.classList.add('faded'); // Makes happy fish 30% opacity and places it behind final text
+function endGame() {
+  clearInterval(gameInterval);
+  gameStarted = false;
+  final.style.display = 'block';
+  fadeFish();
+  
+  // Save to localStorage for replay visibility
+  localStorage.setItem('lastScore', cumulative.toString());
 }
 
+function setupReplay() {
+  document.getElementById('replay').addEventListener('click', () => {
+    // Show last score from storage
+    const lastScore = localStorage.getItem('lastScore');
+    if (lastScore) {
+      final.textContent = `Last Score: ${lastScore}`;
+    }
+    
+    // Start new game without resetting cumulative score
+    initializeGame();
+    startGame();
+  });
+}
+
+// Handle fish clicks
 fish.addEventListener('click', () => {
   if (!gameStarted) return;
+  
   clicks++;
-
-  // Update the score
-  cumulative += 1;
-  cumulativeEl.textContent = cumulative;  // Display updated score in the upper-right corner
+  cumulative++;
   clicksEl.textContent = clicks;
+  cumulativeEl.textContent = cumulative;
 
-  // Wiggle animation
+  // Visual effects
   fish.style.transform = 'scale(0.95)';
   setTimeout(() => (fish.style.transform = 'scale(1)'), 100);
 
@@ -82,60 +128,48 @@ fish.addEventListener('click', () => {
   const emoji = document.createElement('div');
   emoji.className = 'emoji';
   emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-  const angle = Math.random() * 60 - 30;
-  emoji.style.setProperty('--x-offset', `${angle}px`);
   document.body.appendChild(emoji);
   const fishRect = fish.getBoundingClientRect();
   emoji.style.left = `${fishRect.left + fishRect.width / 2}px`;
   emoji.style.top = `${fishRect.top + fishRect.height / 2}px`;
   setTimeout(() => emoji.remove(), 2000);
 
-  // Remove any existing text cloud before adding a new one
-  clearTimeout(textTimeout);
+  // Text cloud every 15 clicks
+  if (clicks % 15 === 0) {
+    clearTimeout(textTimeout);
+    const text = document.createElement('div');
+    text.className = 'text-cloud';
+    text.textContent = texts[Math.floor(Math.random() * texts.length)];
+    text.style.left = `${Math.random() * (window.innerWidth - 200)}px`;
+    text.style.top = `${window.innerHeight / 3}px`;
+    document.body.appendChild(text);
+    textTimeout = setTimeout(() => text.remove(), 4000);
+  }
 
-  // Text cloud (appear above fish only)
-  const text = document.createElement('div');
-  text.className = 'text-cloud';
-  text.textContent = texts[Math.floor(Math.random() * texts.length)];
-  text.style.left = `${Math.random() * (window.innerWidth - 400)}px`;  // Spread text evenly across the page
-  text.style.top = `${window.innerHeight / 2 - 250}px`; // Start higher above the fish
-  text.style.fontSize = `${1 + Math.random()}em`;
-  document.body.appendChild(text);
-
-  // Set a timeout to remove the text cloud after 4 seconds
-  textTimeout = setTimeout(() => text.remove(), 4000);
-
-  // Gradual transition
+  // Fish transition
   let progress = Math.min(clicks / 30, 1);
-  const transitionFish = () => {
-    if (progress >= 1) {
-      fish.src = calmFish;
-      fish.style.transition = 'transform 1s ease-in-out';
-      fish.style.transform += ' translateY(-5px)';
-    } else {
-      if (progress > 0.5) fish.src = calmFish;
-      else fish.src = angryFish;
-    }
-  };
-  transitionFish();
+  if (progress >= 1) {
+    fish.src = calmFish;
+    fish.style.transform += ' translateY(-5px)';
+  } else if (progress > 0.5) {
+    fish.src = calmFish;
+  }
 });
 
-// Replay the game and reset everything
-document.getElementById('replay').addEventListener('click', () => {
-  clicks = 0;
-  // Add -200 to the previous score and start the game again
-  cumulative = parseInt(localStorage.getItem('cumulativeScore') || '-200') - 200;
-  final.style.display = 'none';
-  fish.src = angryFish;
-  cumulativeEl.textContent = cumulative;  // Display the updated score
-  clicksEl.textContent = clicks;  // Reset clicks
-  countdown.textContent = '';
-  instruction.style.opacity = 1;
-  startGame();
+// Initialize on load
+window.addEventListener('DOMContentLoaded', () => {
+  // Clear session storage on fresh load
+  const isRefresh = performance.navigation.type === 1;
+  if (isRefresh) {
+    sessionStorage.removeItem('gameInProgress');
+  }
   
-  // Save the updated score to localStorage
-  localStorage.setItem('cumulativeScore', cumulative);
+  initializeGame();
+  setupReplay();
+  startGame();
 });
 
-// Initialize the game
-startGame();
+// Clear session storage when window closes
+window.addEventListener('beforeunload', () => {
+  sessionStorage.removeItem('gameInProgress');
+});
