@@ -5,7 +5,7 @@ const final = document.getElementById('final');
 const clicksEl = document.getElementById('clicks');
 const cumulativeEl = document.getElementById('cumulative');
 let angryFish = 'images/angry-fish.png';
-let calmFish = 'images/happy-fish.png';
+let calmFish = 'images/calm-fish.png';
 
 let clicks = 0;
 let cumulative = -200;  // Start score at -200 each time
