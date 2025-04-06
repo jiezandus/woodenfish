@@ -1,0 +1,129 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: white;
+  font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', sans-serif;
+  text-align: center;
+}
+
+#instruction {
+  font-size: 1.5em;
+  color: #555;
+  margin-top: 20px;
+  opacity: 1;
+  transition: opacity 0.5s;
+}
+
+#countdown {
+  font-size: 2em;
+  color: #aaa;
+  margin-top: 10px;
+}
+
+#fish {
+  width: 150px;
+  position: relative;
+  z-index: 2;
+  animation: floatFish 5s ease-in-out infinite; /* Floating animation for angry fish */
+}
+
+@keyframes floatFish {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+#fish.faded {
+  opacity: 0.3;
+  z-index: 0;
+}
+
+#fish-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.emoji {
+  position: absolute;
+  font-size: 2em;
+  opacity: 0.8;
+  pointer-events: none;
+  animation: floatUp 2s linear forwards;
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-200px) translateX(var(--x-offset)) scale(1.5);
+    opacity: 0;
+  }
+}
+
+.text-cloud {
+  position: absolute;
+  color: rgba(100, 100, 100, 0.3);
+  font-size: 1.2em;
+  font-style: italic;
+  animation: driftDown 4s ease-in forwards;
+  z-index: 1;
+}
+
+@keyframes driftDown {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100px) scale(2);
+    opacity: 0;
+  }
+}
+
+#score {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 1.2em;
+}
+
+#final {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5em;
+  display: none;
+  color: #333;
+  text-align: center;
+}
+
+#replay {
+  display: block;
+  margin: 20px auto 0;
+  font-size: 1em;
+  padding: 12px 24px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#replay:hover {
+  background-color: #ddd;
+}
