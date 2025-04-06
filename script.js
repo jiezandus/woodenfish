@@ -150,7 +150,8 @@ const handleClick = () => {
   let progress = Math.min(clicks / 30, 1);
   if (progress >= 1) {
     fish.src = calmFish;
-    fish.style.transform += ' translateY(-5px)';
+    fish.style.transform += ' translateY(-5px)';  // GH: not sure if this is doing anything
+    fish.style.filter = 'hue-rotate(' + Math.random() * 360 + 'deg)';
   } else if (progress > 0.5) {
     fish.src = calmFish;
   }
