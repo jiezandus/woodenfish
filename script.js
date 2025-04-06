@@ -112,7 +112,7 @@ function setupReplay() {
 }
 
 // Handle fish clicks
-fish.addEventListener('click', () => {
+const handleClick = () => {
   if (!gameStarted) return;
   
   clicks++;
@@ -154,7 +154,10 @@ fish.addEventListener('click', () => {
   } else if (progress > 0.5) {
     fish.src = calmFish;
   }
-});
+}
+
+fish.addEventListener('click', handleClick);  // for desktop
+fish.addEventListener('touchstart', handleClick);  // for mobile
 
 // Initialize on load
 window.addEventListener('DOMContentLoaded', () => {
