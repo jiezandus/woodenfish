@@ -55,6 +55,9 @@ function startGame() {
   flashText.textContent = INITIAL_PENALTY;
   document.body.appendChild(flashText);
 
+  // Reset fish color
+  fish.style.filter = 'hue-rotate(0deg)';
+
   const countdownInterval = setInterval(() => {
     timeLeft--;
     if (timeLeft === 0) {
