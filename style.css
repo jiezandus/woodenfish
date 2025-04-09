@@ -10,6 +10,7 @@ body {
   display: flex;
   flex-direction: column;
   position: relative; /* Added for absolute positioning context */
+  touch-action: manipulation; /* prevent double-click zoom on mobile */
 }
 
 /* 1. Instruction at the top */
