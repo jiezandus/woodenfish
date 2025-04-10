@@ -36,22 +36,26 @@ body {
 #fish {
   width: 150px;
   position: absolute;
-  top: 70%; /* Changed from bottom to top for more precise positioning */
-  left: 50%;
-  transform: translateX(-50%) translateY(-50%);
+  top: calc(70% - 60px);
+  left: calc(50% - 75px);
   z-index: 2;
   animation: floatFish 5s ease-in-out infinite;
+  transition: transform 0.05s ease-in-out;
+}
+
+#fish:active {
+  transform: scale(0.95);
 }
 
 @keyframes floatFish {
   0% {
-    transform: translateX(-50%) translateY(-50%);
+    top: calc(70% - 60px);
   }
   50% {
-    transform: translateX(-50%) translateY(-60%);
+    top: calc(70% - 120px);
   }
   100% {
-    transform: translateX(-50%) translateY(-50%);
+    top: calc(70% - 60px);
   }
 }
 
