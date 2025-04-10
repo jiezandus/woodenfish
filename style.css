@@ -37,10 +37,15 @@ body {
   width: 150px;
   position: absolute;
   top: calc(70% - 60px);
-  left: calc(50% - 75px);
+  left: calc(50% - 150px);
   z-index: 2;
   animation: floatFish 5s ease-in-out infinite;
   transition: transform 0.05s ease-in-out;
+}
+
+#fish img {
+  width: 100%;
+  position: absolute;
 }
 
 #fish:active {
