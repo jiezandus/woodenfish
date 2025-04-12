@@ -1,11 +1,11 @@
 const fish = document.getElementById('fish');
+const angryFish = document.getElementById('angry-fish');
+const calmFish = document.getElementById('calm-fish');
 const countdown = document.getElementById('countdown');
 const instruction = document.getElementById('instruction');
 const final = document.getElementById('final');
 const clicksEl = document.getElementById('clicks');
 const cumulativeEl = document.getElementById('cumulative');
-let angryFish = 'images/angry-fish.png';
-let calmFish = 'images/calm-fish.png';
 
 let clicks = 0;
 let cumulative = 0;
@@ -30,7 +30,6 @@ function initializeGame() {
   gameStarted = false;
   clicksEl.textContent = clicks;
   final.style.display = 'none';
-  fish.src = angryFish;
   countdown.textContent = '';
   instruction.style.opacity = 1;
   
@@ -56,6 +55,8 @@ function startGame() {
   document.body.appendChild(flashText);
 
   // Reset fish color
+  angryFish.style.opacity = 1;
+  calmFish.style.opacity = 0;
   fish.style.filter = 'hue-rotate(0deg)';
 
   const countdownInterval = setInterval(() => {
@@ -150,13 +151,12 @@ const handleClick = () => {
   }
 
   // Fish transition
-  let progress = Math.min(clicks / 30, 1);
-  if (progress >= 1) {
-    fish.src = calmFish;
-    fish.style.transform += ' translateY(-5px)';  // GH: not sure if this is doing anything
+  let progress = clicks / 30;
+  if (progress <= 1) {
+    angryFish.style.opacity = 1 - progress;
+    calmFish.style.opacity = progress;
+  } else if (progress > 1.5) {
     fish.style.filter = 'hue-rotate(' + Math.random() * 360 + 'deg)';
-  } else if (progress > 0.5) {
-    fish.src = calmFish;
   }
 }
 
