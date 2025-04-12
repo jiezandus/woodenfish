@@ -31,7 +31,8 @@ function initializeGame() {
   clicksEl.textContent = clicks;
   final.style.display = 'none';
   countdown.textContent = '';
-  countdown.style.disiplay = 'block'; // Ensure it's visible when starting;
+  countdown.style.display = 'block'; // Ensure it's visible when starting
+  countdown.style.opacity = '1'; // Ensure it's visible when starting;
   instruction.style.opacity = 1;
   
   // Check if we're continuing from a previous game
@@ -142,7 +143,7 @@ const handleClick = () => {
   setTimeout(() => emoji.remove(), 2000);
 
   // Text cloud every 15 clicks
-  if (clicks % 15 === 0) {
+  if (clicks % 30 === 0) {
     clearTimeout(textTimeout);
     const text = document.createElement('div');
     text.className = 'text-cloud';
