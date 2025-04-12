@@ -142,8 +142,8 @@ const handleClick = () => {
   emoji.style.top = `${fishRect.top + fishRect.height / 2}px`;
   setTimeout(() => emoji.remove(), 2000);
 
-  // Text cloud every 20 clicks
-  if (clicks % 20 === 0) {
+  // Text cloud every 30 clicks
+  if (clicks % 30 === 0) {
     clearTimeout(textTimeout);
     const text = document.createElement('div');
     text.className = 'text-cloud';
