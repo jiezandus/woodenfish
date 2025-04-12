@@ -47,7 +47,7 @@ function startGame() {
   // Mark game as in progress
   sessionStorage.setItem('gameInProgress', 'true');
   
-  let timeLeft = 3;
+  let timeLeft = 5;
   countdown.textContent = timeLeft;
   
   // Show penalty flash
