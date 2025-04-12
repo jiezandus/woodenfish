@@ -14,11 +14,11 @@ const INITIAL_PENALTY = -200;
 
 const emojis = ['🌿', '🧘', '🌱', '😌', '🌸'];
 const texts = [
-  "Let it go...",
-  "Breathe in calm...",
-  "You are safe.",
+  "Don't hold onto anger.",
+  "Breathe.",
+  "You are doing great.",
   "No need to fight.",
-  "Anger fades..."
+  "Let it pass."
 ];
 
 let textTimeout;
@@ -142,8 +142,8 @@ const handleClick = () => {
   emoji.style.top = `${fishRect.top + fishRect.height / 2}px`;
   setTimeout(() => emoji.remove(), 2000);
 
-  // Text cloud every 15 clicks
-  if (clicks % 30 === 0) {
+  // Text cloud every 20 clicks
+  if (clicks % 20 === 0) {
     clearTimeout(textTimeout);
     const text = document.createElement('div');
     text.className = 'text-cloud';
