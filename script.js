@@ -151,7 +151,7 @@ const handleClick = () => {
   }
 
   // Fish transition
-  let progress = clicks / 30;
+  let progress = clicks / 50;
   if (progress <= 1) {
     angryFish.style.opacity = 1 - progress;
     calmFish.style.opacity = progress;
