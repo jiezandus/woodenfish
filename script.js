@@ -138,7 +138,8 @@ const handleClick = () => {
   emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
   document.body.appendChild(emoji);
   const fishRect = fish.getBoundingClientRect();
-  emoji.style.left = `${fishRect.left + fishRect.width / 2}px`;
+  const emojiRect = emoji.getBoundingClientRect();
+  emoji.style.left = `${fishRect.left + fishRect.width / 2 - emojiRect.width/2}px`;
   emoji.style.top = `${fishRect.top + fishRect.height / 2}px`;
   setTimeout(() => emoji.remove(), 2000);
 

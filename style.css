@@ -75,7 +75,7 @@ body {
   font-size: 1.3em;
   font-weight: 500;
   color: #666666;
-  margin-top: 20px;
+  margin-top: 60px;
   opacity: 1;
   transition: opacity 0.5s;
 }
@@ -100,7 +100,7 @@ body {
   top: calc(70% - 30px);
   left: calc(50% - 75px);
   z-index: 2;
-  /*order:2px solid red;*/
+  /* border:2px solid red;*/
   animation: floatFish 5s ease-in-out infinite;
   transition: transform 0.05s ease-in-out;
 }
@@ -109,7 +109,7 @@ body {
   width: 100%;
   position: absolute;
   left: calc(50% - 75px);
-  /*border:2px solid red;*/
+  /* border:2px solid red;*/
 }
 
 #fish:active {
@@ -182,7 +182,7 @@ body {
   opacity: 0.8;
   z-index: 3;
   pointer-events: none;
-  transform: translate(-50%, -50%); 
+  /* transform: translate(50%, 50%); */
   animation: floatUp 2s linear forwards;
 }
 
