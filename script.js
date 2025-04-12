@@ -10,7 +10,7 @@ const cumulativeEl = document.getElementById('cumulative');
 let clicks = 0;
 let cumulative = 0;
 let gameStarted = false;
-const INITIAL_PENALTY = -250;
+const INITIAL_PENALTY = -300;
 
 const emojis = ['🌿', '🧘', '🌱', '😌', '🌸'];
 const texts = [
