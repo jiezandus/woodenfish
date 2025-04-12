@@ -10,7 +10,7 @@ const cumulativeEl = document.getElementById('cumulative');
 let clicks = 0;
 let cumulative = 0;
 let gameStarted = false;
-const INITIAL_PENALTY = -200;
+const INITIAL_PENALTY = -250;
 
 const emojis = ['🌿', '🧘', '🌱', '😌', '🌸'];
 const texts = [
@@ -19,6 +19,14 @@ const texts = [
   "You are doing great.",
   "No need to fight.",
   "Let it pass."
+];
+
+const finalMessages = [
+  "You released {N} ripples of tension.",
+  "{N} taps closer to calmness.",
+  "{N} splashes later...a little lighter?",
+  "Each tap a small letting go - {N} in total.",
+  "Not anger. Just {N} chances to begin again."
 ];
 
 let textTimeout;
@@ -98,6 +106,8 @@ function endGame() {
   gameStarted = false;
   countdown.style.opacity = '0'; // Fade out instead of hide
   setTimeout(() => countdown.style.display = 'none', 500); // Hide after fade
+  const randomMessage = finalMessages[Math.floor(Math.random() * finalMessages.length)];
+  document.getElementById("final-message").innerHTML = randomMessage.replace("{N}", clicks);
   final.style.display = 'block';
   fadeFish();
   

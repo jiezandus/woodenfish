@@ -145,7 +145,7 @@ body {
 /* 5. Text clouds within window bounds */
 .text-cloud {
   position: absolute;
-  color: rgba(100, 100, 100, 0.3);
+  color: rgba(100, 100, 100, 0.25);
   font-size: 1.8em;
   font-style: italic;
   font-weight: 700;
