@@ -31,6 +31,7 @@ function initializeGame() {
   clicksEl.textContent = clicks;
   final.style.display = 'none';
   countdown.textContent = '';
+  countdown.style.disiplay = 'block'; // Ensure it's visible when starting;
   instruction.style.opacity = 1;
   
   // Check if we're continuing from a previous game
@@ -94,6 +95,8 @@ function startClicking() {
 function endGame() {
   clearInterval(gameInterval);
   gameStarted = false;
+  countdown.style.opacity = '0'; // Fade out instead of hide
+  setTimeout(() => countdown.style.display = 'none', 500); // Hide after fade
   final.style.display = 'block';
   fadeFish();
   
