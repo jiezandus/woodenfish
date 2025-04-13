@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="tapping.css" />
 </head>
 <body>
-  <div id="instruction">The fish is listening. Tap fast for 30 seconds to let your tensions go.</div>
+  <div id="instruction"></div>
 <div id="countdown-container">
   <div id="countdown"></div>
   <div id="game-countdown"></div> <!-- New element for game timer -->
@@ -25,6 +25,23 @@
     <div id="final-message">Time's up!<br />You tapped <span id="clicks">0</span> times.</div>
     <button id="replay">More Fish!</button>
   </div>
+  <script>
+    // Add this before your tapping.js script
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const emotion = params.get('emotion');
+      const instructionElement = document.getElementById('instruction');
+      
+      const instructions = {
+        'angry': "It's okay to feel this way. Tap fast and hard as you need. The fish can take it.",
+        'frustrated': "You've had enough. Tap the fish for 30 seconds - each tap is a reset.",
+        'react': "Before you say anything you'll regret - tap the fish for 30 seconds. Let the fish hold it for you.",
+        'vent': "Whatever it is, give it to the fish. Just tap 30 seconds for pure release."
+      };
+      
+      instructionElement.textContent = instructions[emotion] || "The fish is listening. Tap fast for 30 seconds to let your tensions go.";
+    });
+  </script>
   <script src="tapping.js"></script>
 </body>
 </html>
