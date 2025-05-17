@@ -12,16 +12,21 @@ const instruction = document.getElementById('instruction');
 startButton.addEventListener('click', async () => {
     if (!isListening) {
         try {
+            console.log('Button clicked - starting');
             breathCount = 0;
             breathCountDisplay.textContent = `Breath: ${breathCount}/10`;
+            isListening = true;  // Move this line BEFORE starting audio analysis
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            console.log('Got audio stream');
             startAudioAnalysis(stream);
             startButton.textContent = 'Stop Exercise';
-            isListening = true;
         } catch (err) {
+            console.error('Error:', err);
+            isListening = false;  // Reset if there's an error
             alert('Please allow microphone access to use this feature.');
         }
     } else {
+        console.log('Stopping exercise');
         stopAudioAnalysis();
         startButton.textContent = 'Start Breathing Exercise';
         isListening = false;
@@ -29,19 +34,27 @@ startButton.addEventListener('click', async () => {
 });
 
 function startAudioAnalysis(stream) {
+    console.log('Starting audio analysis');  // Basic start log
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    console.log('Audio context created');  // Check audio context creation
     analyser = audioContext.createAnalyser();
     microphone = audioContext.createMediaStreamSource(stream);
     
-    // Create and configure bandpass filter
+    // Create and configure bandpass filters for breath sound isolation
     const filter = audioContext.createBiquadFilter();
     filter.type = 'bandpass';
-    filter.frequency.value = 1000; // Center around 1kHz where breath sounds are prominent
-    filter.Q.value = 1.0; // Controls the width of the band
+    filter.frequency.value = 500; // Lower frequency for breath fundamentals
+    filter.Q.value = 0.7; // Wider band to catch more breath frequencies
+
+    const filter2 = audioContext.createBiquadFilter();
+    filter2.type = 'bandpass';
+    filter2.frequency.value = 2000; // Higher frequency for breath harmonics
+    filter2.Q.value = 0.5; // Wide band for harmonics
     
-    // Connect nodes: microphone -> filter -> analyser
+    // Connect nodes: microphone -> filter -> filter2 -> analyser
     microphone.connect(filter);
-    filter.connect(analyser);
+    filter.connect(filter2);
+    filter2.connect(analyser);
     
     analyser.fftSize = 1024;  // Increased for better resolution
     
@@ -52,7 +65,10 @@ function startAudioAnalysis(stream) {
     const volumeIndicator = document.getElementById('volumeIndicator');
     
     function animate() {
-        if (!isListening) return;
+        if (!isListening) {
+            console.log('Not listening, animation stopped');  // Log when animation stops
+            return;
+        }
         
         analyser.getByteTimeDomainData(dataArray);  // Changed to time domain data
         
@@ -64,8 +80,14 @@ function startAudioAnalysis(stream) {
         }
         const volume = Math.sqrt(sum / dataArray.length) * 100;  // RMS calculation
         
-        // Update volume indicator with raw value only
-        volumeIndicator.textContent = `Volume: ${Math.round(volume)}`;
+        // Debug logging with more visible formatting
+        console.log('%c Audio Debug Info ', 'background: #222; color: #bada55');
+        console.log('%c Raw volume: ' + volume.toFixed(2), 'color: #00ff00');
+        console.log('%c Breath state: ' + (isBreathing ? 'breathing' : 'not breathing'), 'color: #0000ff');
+        console.log('%c Threshold - Start: 0.3, Stop: 0.2', 'color: #ff0000');
+        
+        // Update volume indicator with raw value and thresholds
+        volumeIndicator.textContent = `Volume: ${Math.round(volume)} (Start: 0.15, Stop: 0.1)`;
         
         // Scale and color transition based on volume
         const scale = 1 + (volume / 50);  // Adjusted scaling factor
@@ -74,17 +96,20 @@ function startAudioAnalysis(stream) {
         fish.style.transform = `scale(${scale})`;
 
         const now = Date.now();
-        if (volume > 0.15 && !isBreathing) {  // Lower threshold for better sensitivity
+        if (volume > 0.3 && !isBreathing) {  // Increased threshold for more reliable detection
             isBreathing = true;
             instruction.textContent = "Keep breathing...";
             lastDetected = now;
+            console.log('Breath start detected:', volume);
             
             breathTimer = setTimeout(() => {
-                if (now - lastDetected > 300) { // Only count if breath sustained for 300ms
+                const currentTime = Date.now();
+                if (currentTime - lastDetected > 500) { // Increased minimum duration
                     breathCount++;
                     breathCountDisplay.textContent = `Breath: ${breathCount}/10`;
                     isBreathing = false;
                     instruction.textContent = "Take another deep breath";
+                    console.log('Breath counted, duration:', currentTime - lastDetected);
                     
                     if (breathCount >= 10) {
                         stopAudioAnalysis();
@@ -92,8 +117,8 @@ function startAudioAnalysis(stream) {
                         startButton.textContent = 'Start New Session';
                     }
                 }
-            }, 2000); // Reduced from 3000ms to make it more responsive
-        } else if (volume < 0.1 && isBreathing && now - lastDetected > 500) {  // Add timing check
+            }, 1500); // Reduced timeout for better responsiveness
+        } else if (volume < 0.2 && isBreathing && now - lastDetected > 800) {  // Adjusted end threshold and timing
             clearTimeout(breathTimer);
             isBreathing = false;
             instruction.textContent = "Take another deep breath";
@@ -102,6 +127,7 @@ function startAudioAnalysis(stream) {
         requestAnimationFrame(animate);
     }
     
+    console.log('Starting animation loop');  // Log before starting animation
     animate();
 }
 
