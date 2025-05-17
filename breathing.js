@@ -38,12 +38,16 @@ function startAudioAnalysis(stream) {
     let isBreathing = false;
     let breathTimer = null;
     const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    const volumeIndicator = document.getElementById('volumeIndicator');
     
     function animate() {
         if (!isListening) return;
         
         analyser.getByteFrequencyData(dataArray);
         const volume = dataArray.reduce((a, b) => a + b) / dataArray.length;
+        
+        // Update volume indicator
+        volumeIndicator.textContent = `Volume: ${Math.round(volume)}`;
         
         // Scale and color transition based on volume
         const scale = 1 + (volume / 128) * 0.5;
@@ -85,4 +89,5 @@ function stopAudioAnalysis() {
     fish.style.transform = 'scale(1)';
     fish.style.filter = 'none';
     isListening = false;
+    document.getElementById('volumeIndicator').textContent = 'Volume: 0';
 }
