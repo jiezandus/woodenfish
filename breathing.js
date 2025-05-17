@@ -1,142 +1,127 @@
-let audioContext;
-let analyser;
-let microphone;
-let isListening = false;
+let isExerciseRunning = false;
 let breathCount = 0;
 const fish = document.getElementById('fish');
 const startButton = document.getElementById('startButton');
-const breathCountDisplay = document.getElementById('breathCount');
-const countdownDisplay = document.getElementById('countdown');
 const instruction = document.getElementById('instruction');
+const countdownDisplay = document.getElementById('countdown');
 
-startButton.addEventListener('click', async () => {
-    if (!isListening) {
-        try {
-            console.log('Button clicked - starting');
-            breathCount = 0;
-            breathCountDisplay.textContent = `Breath: ${breathCount}/10`;
-            isListening = true;  // Move this line BEFORE starting audio analysis
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            console.log('Got audio stream');
-            startAudioAnalysis(stream);
-            startButton.textContent = 'Stop Exercise';
-        } catch (err) {
-            console.error('Error:', err);
-            isListening = false;  // Reset if there's an error
-            alert('Please allow microphone access to use this feature.');
-        }
+// Add smooth transition to fish
+fish.style.transition = 'transform 4s cubic-bezier(0.4, 0, 0.2, 1)';
+
+startButton.addEventListener('click', () => {
+    if (!isExerciseRunning) {
+        startExercise();
+        startButton.textContent = 'Stop';
     } else {
-        console.log('Stopping exercise');
-        stopAudioAnalysis();
-        startButton.textContent = 'Start Breathing Exercise';
-        isListening = false;
+        stopExercise();
+        startButton.textContent = 'Start';
     }
 });
 
-function startAudioAnalysis(stream) {
-    console.log('Starting audio analysis');  // Basic start log
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    console.log('Audio context created');  // Check audio context creation
-    analyser = audioContext.createAnalyser();
-    microphone = audioContext.createMediaStreamSource(stream);
+function startExercise() {
+    isExerciseRunning = true;
+    breathCount = 0;
+    instruction.textContent = "";  // Remove the "get ready" text
+    countdownDisplay.textContent = "";
     
-    // Create and configure bandpass filters for breath sound isolation
-    const filter = audioContext.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.value = 500; // Lower frequency for breath fundamentals
-    filter.Q.value = 0.7; // Wider band to catch more breath frequencies
-
-    const filter2 = audioContext.createBiquadFilter();
-    filter2.type = 'bandpass';
-    filter2.frequency.value = 2000; // Higher frequency for breath harmonics
-    filter2.Q.value = 0.5; // Wide band for harmonics
-    
-    // Connect nodes: microphone -> filter -> filter2 -> analyser
-    microphone.connect(filter);
-    filter.connect(filter2);
-    filter2.connect(analyser);
-    
-    analyser.fftSize = 1024;  // Increased for better resolution
-    
-    let isBreathing = false;
-    let breathTimer = null;
-    let lastDetected = 0;
-    const dataArray = new Uint8Array(analyser.frequencyBinCount);
-    const volumeIndicator = document.getElementById('volumeIndicator');
-    
-    function animate() {
-        if (!isListening) {
-            console.log('Not listening, animation stopped');  // Log when animation stops
-            return;
-        }
-        
-        analyser.getByteTimeDomainData(dataArray);  // Changed to time domain data
-        
-        // Calculate RMS value for better volume representation
-        let sum = 0;
-        for (let i = 0; i < dataArray.length; i++) {
-            const amplitude = (dataArray[i] - 128) / 128;  // Convert to -1 to 1 range
-            sum += amplitude * amplitude;
-        }
-        const volume = Math.sqrt(sum / dataArray.length) * 100;  // RMS calculation
-        
-        // Debug logging with more visible formatting
-        console.log('%c Audio Debug Info ', 'background: #222; color: #bada55');
-        console.log('%c Raw volume: ' + volume.toFixed(2), 'color: #00ff00');
-        console.log('%c Breath state: ' + (isBreathing ? 'breathing' : 'not breathing'), 'color: #0000ff');
-        console.log('%c Threshold - Start: 0.3, Stop: 0.2', 'color: #ff0000');
-        
-        // Update volume indicator with raw value and thresholds
-        volumeIndicator.textContent = `Volume: ${Math.round(volume)} (Start: 0.15, Stop: 0.1)`;
-        
-        // Scale and color transition based on volume
-        const scale = 1 + (volume / 50);  // Adjusted scaling factor
-        const hue = Math.min(180, volume * 2);  // Adjusted color transition
-        fish.style.filter = `hue-rotate(${hue}deg)`;
-        fish.style.transform = `scale(${scale})`;
-
-        const now = Date.now();
-        if (volume > 0.3 && !isBreathing) {  // Increased threshold for more reliable detection
-            isBreathing = true;
-            instruction.textContent = "Keep breathing...";
-            lastDetected = now;
-            console.log('Breath start detected:', volume);
-            
-            breathTimer = setTimeout(() => {
-                const currentTime = Date.now();
-                if (currentTime - lastDetected > 500) { // Increased minimum duration
-                    breathCount++;
-                    breathCountDisplay.textContent = `Breath: ${breathCount}/10`;
-                    isBreathing = false;
-                    instruction.textContent = "Take another deep breath";
-                    console.log('Breath counted, duration:', currentTime - lastDetected);
-                    
-                    if (breathCount >= 10) {
-                        stopAudioAnalysis();
-                        instruction.textContent = "Great job! Exercise complete.";
-                        startButton.textContent = 'Start New Session';
-                    }
-                }
-            }, 1500); // Reduced timeout for better responsiveness
-        } else if (volume < 0.2 && isBreathing && now - lastDetected > 800) {  // Adjusted end threshold and timing
-            clearTimeout(breathTimer);
-            isBreathing = false;
-            instruction.textContent = "Take another deep breath";
-        }
-        
-        requestAnimationFrame(animate);
-    }
-    
-    console.log('Starting animation loop');  // Log before starting animation
-    animate();
+    // Start the breathing cycle
+    setTimeout(() => {
+        runBreathingCycle();
+    }, 1000);
 }
 
-function stopAudioAnalysis() {
-    if (audioContext) {
-        audioContext.close();
-    }
+function runBreathingCycle() {
+    if (!isExerciseRunning) return;
+    
+    const cycleDuration = 4000; // 4 seconds
+    
+    // Inhale phase - shrink to 50%
+    console.log('Starting inhale phase');
+    createFloatingText(`Inhale ${breathCount + 1}...`);
+    fish.style.transform = 'scale(0.5)';  // Direct CSS transform
+    countdownDisplay.style.fontSize = '3.0em';  // Match tapping.css countdown size
+    countdownDisplay.style.fontWeight = '700';  // Match tapping.css font weight
+    countdownDisplay.style.color = '#666666';  // Match tapping.css text color
+    updateCountdown(Date.now(), cycleDuration);
+    
+    setTimeout(() => {
+        if (!isExerciseRunning) return;
+        
+        setTimeout(() => {
+            if (!isExerciseRunning) return;
+            
+            // Exhale phase - return to 100%
+            console.log('Starting exhale phase');
+            createFloatingText(`Exhale ${breathCount + 1}...`);
+            fish.style.transform = 'scale(1)';  // Direct CSS transform
+            updateCountdown(Date.now(), cycleDuration);
+            
+            setTimeout(() => {
+                if (!isExerciseRunning) return;
+                
+                setTimeout(() => {
+                    if (!isExerciseRunning) return;
+                    
+                    breathCount++;
+                    
+                    if (breathCount >= 10) {
+                        stopExercise();
+                        instruction.textContent = "Great job! Exercise complete.";
+                        startButton.textContent = 'Start New Session';
+                        countdownDisplay.textContent = "";
+                    } else {
+                        runBreathingCycle(); // Start next breath cycle
+                    }
+                }, 1000); // 1 second pause before next breath
+            }, cycleDuration);
+        }, 1000); // 1 second pause after inhale
+    }, cycleDuration);
+}
+
+// Add this new function to create floating text
+function createFloatingText(text) {
+    const textElement = document.createElement('div');
+    textElement.className = 'text-float';
+    textElement.textContent = text;
+    
+    // Position the text with more random positioning
+    const fishRect = fish.getBoundingClientRect();
+    const randomHorizontalOffset = (Math.random() - 0.5) * 200; // Increased from 100 to 200
+    const randomVerticalOffset = Math.random() * 100; // Random vertical offset up to 100px above fish
+    
+    textElement.style.left = `${fishRect.left + fishRect.width/2 + randomHorizontalOffset}px`;
+    textElement.style.top = `${fishRect.top - 50 - randomVerticalOffset}px`; // Start higher and vary vertically
+    
+    document.body.appendChild(textElement);
+    
+    // Remove the element after animation completes
+    setTimeout(() => {
+        textElement.remove();
+    }, 4000);
+}
+
+function updateCountdown(startTime, duration) {
+    const updateTimer = () => {
+        if (!isExerciseRunning) return;
+        
+        const currentTime = Date.now();
+        const elapsed = currentTime - startTime;
+        const count = Math.floor(elapsed / 1000) + 1; // Count up from 1
+        
+        if (count <= 4) { // Show numbers 1 through 4
+            countdownDisplay.textContent = count.toString();
+            requestAnimationFrame(updateTimer);
+        }
+    };
+    
+    updateTimer();
+}
+
+function stopExercise() {
+    console.log('Stopping exercise, resetting fish scale');
+    isExerciseRunning = false;
     fish.style.transform = 'scale(1)';
-    fish.style.filter = 'none';
-    isListening = false;
-    document.getElementById('volumeIndicator').textContent = 'Volume: 0';
+    instruction.textContent = "";
+    countdownDisplay.textContent = "";
+    startButton.textContent = 'Start';
 }
