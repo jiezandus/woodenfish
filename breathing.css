@@ -17,27 +17,79 @@ body {
 }
 
 #fish {
-    width: auto;
-    height: 200px;
-    transition: all 0.3s ease;
-    transform: scale(0.8);  /* Start with a smaller size */
+    width: 150px;  /* Match tapping.css fish size */
+    position: absolute;
+    top: calc(70% - 30px);  /* Match tapping.css fish position */
+    left: calc(50% - 75px);  /* Match tapping.css fish position */
+    z-index: 2;
+    transition: transform 0.3s ease;
 }
 
-.fish-container {
-    position: relative;
-    transition: transform 0.3s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+#countdown {
+    font-size: 3.0em;
+    font-weight: 700;
+    color: #666666;
+    position: absolute;
+    top: 30%;  /* Match tapping.css countdown position */
+    left: 50%;
+    transform: translateX(-50%);
+    transition: opacity 0.5s ease;
+}
+
+#startButton {
+    display: block;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 5px;
+    background-color: #666666;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#progressBar {
+    display: none;  /* Hide initially */
+    position: absolute;
+    bottom: 20px;  /* Same as button */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 4px;
+    background-color: #e0e0e0;
+    border-radius: 2px;
+    overflow: visible;
+    text-align: center;
+}
+
+#progressFill {
+    width: 0%;
+    height: 100%;
+    background-color: #666666;
+    transition: width 0.3s ease;
+}
+
+#progressText {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: -25px;
+    color: #666666;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
 }
 
 .text-float {
     position: absolute;
     color: rgba(100, 100, 100, 0.25);
-    font-size: 1.8em;
+    font-size: 3.6em;  /* Doubled from 1.8em to 3.6em */
     font-style: italic;
     font-weight: 700;
-    animation: floatUp 4s ease-in forwards;  /* Changed from 2s to 4s */
+    animation: floatUp 4s ease-in forwards;
     z-index: 1;
     pointer-events: none;
 }
@@ -51,33 +103,4 @@ body {
         transform: translateY(-20vh) scale(1.5);
         opacity: 0;
     }
-}
-
-#startButton {
-    position: fixed;
-    left: 50%;
-    bottom: 20%;
-    transform: translateX(-50%);
-    padding: 10px 20px;
-    font-size: 1.2em;
-    border: none;
-    border-radius: 5px;
-    background-color: #666666;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-#startButton:hover {
-    background-color: #888888;
-}
-
-#countdown {
-    position: fixed;
-    left: 50%;
-    top: 20%;
-    transform: translateX(-50%);
-    font-size: 3.0em;
-    font-weight: 700;
-    color: #666666;
 }

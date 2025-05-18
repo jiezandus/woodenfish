@@ -11,37 +11,82 @@ fish.style.transition = 'transform 4s cubic-bezier(0.4, 0, 0.2, 1)';
 startButton.addEventListener('click', () => {
     if (!isExerciseRunning) {
         startExercise();
-        startButton.textContent = 'Stop';
+        startButton.textContent = 'I give up';
     } else {
         stopExercise();
         startButton.textContent = 'Start';
     }
 });
 
+// Add progress bar elements at the start
+const progressBar = document.createElement('div');
+progressBar.id = 'progressBar';
+const progressFill = document.createElement('div');
+progressFill.id = 'progressFill';
+progressBar.appendChild(progressFill);
+document.body.appendChild(progressBar);
+
+// Add progress text element
+const progressText = document.createElement('div');
+progressText.id = 'progressText';
+progressBar.appendChild(progressText);
+
 function startExercise() {
     isExerciseRunning = true;
     breathCount = 0;
-    instruction.textContent = "";  // Remove the "get ready" text
+    instruction.textContent = "";
     countdownDisplay.textContent = "";
+    progressFill.style.width = '0%';
+    progressText.textContent = '0%';
     
-    // Start the breathing cycle
+    // Hide button, show progress bar
+    startButton.style.display = 'none';
+    progressBar.style.display = 'block';
+    
     setTimeout(() => {
         runBreathingCycle();
     }, 1000);
 }
 
+function stopExercise() {
+    console.log('Stopping exercise, resetting fish scale');
+    isExerciseRunning = false;
+    fish.style.transform = 'scale(1)';
+    instruction.textContent = "";
+    countdownDisplay.textContent = "";
+    
+    if (breathCount >= 10) {
+        // Exercise completed, show final button
+        progressBar.style.display = 'none';
+        startButton.style.display = 'block';
+        startButton.textContent = 'Do it again';
+    } else {
+        // Exercise interrupted, show start button
+        progressBar.style.display = 'none';
+        startButton.style.display = 'block';
+        startButton.textContent = 'Start';
+    }
+    
+    progressFill.style.width = '0%';
+    progressText.textContent = '0%';
+}
+
 function runBreathingCycle() {
     if (!isExerciseRunning) return;
     
-    const cycleDuration = 4000; // 4 seconds
+    const cycleDuration = 4000;
     
-    // Inhale phase - shrink to 50%
-    console.log('Starting inhale phase');
-    createFloatingText(`Inhale ${breathCount + 1}...`);
-    fish.style.transform = 'scale(0.5)';  // Direct CSS transform
-    countdownDisplay.style.fontSize = '3.0em';  // Match tapping.css countdown size
-    countdownDisplay.style.fontWeight = '700';  // Match tapping.css font weight
-    countdownDisplay.style.color = '#666666';  // Match tapping.css text color
+    // Update progress
+    const progress = (breathCount / 10) * 100;
+    progressFill.style.width = `${progress}%`;
+    progressText.textContent = `${Math.round(progress)}%`;
+    
+    // Inhale phase
+    createFloatingText('Inhale...');
+    fish.style.transform = 'scale(0.5)';
+    countdownDisplay.style.fontSize = '3.0em';
+    countdownDisplay.style.fontWeight = '700';
+    countdownDisplay.style.color = '#666666';
     updateCountdown(Date.now(), cycleDuration);
     
     setTimeout(() => {
@@ -50,10 +95,9 @@ function runBreathingCycle() {
         setTimeout(() => {
             if (!isExerciseRunning) return;
             
-            // Exhale phase - return to 100%
-            console.log('Starting exhale phase');
-            createFloatingText(`Exhale ${breathCount + 1}...`);
-            fish.style.transform = 'scale(1)';  // Direct CSS transform
+            // Exhale phase
+            createFloatingText('Exhale...');
+            fish.style.transform = 'scale(1)';
             updateCountdown(Date.now(), cycleDuration);
             
             setTimeout(() => {
@@ -63,18 +107,21 @@ function runBreathingCycle() {
                     if (!isExerciseRunning) return;
                     
                     breathCount++;
+                    const newProgress = (breathCount / 10) * 100;
+                    progressFill.style.width = `${newProgress}%`;
+                    progressText.textContent = `${Math.round(newProgress)}%`;
                     
                     if (breathCount >= 10) {
                         stopExercise();
-                        instruction.textContent = "Great job! Exercise complete.";
-                        startButton.textContent = 'Start New Session';
+                        instruction.textContent = "Great job! Let's move on, positively.";
+                        startButton.textContent = 'Do it again';
                         countdownDisplay.textContent = "";
                     } else {
-                        runBreathingCycle(); // Start next breath cycle
+                        runBreathingCycle();
                     }
-                }, 1000); // 1 second pause before next breath
+                }, 1000);
             }, cycleDuration);
-        }, 1000); // 1 second pause after inhale
+        }, 1000);
     }, cycleDuration);
 }
 
@@ -115,13 +162,4 @@ function updateCountdown(startTime, duration) {
     };
     
     updateTimer();
-}
-
-function stopExercise() {
-    console.log('Stopping exercise, resetting fish scale');
-    isExerciseRunning = false;
-    fish.style.transform = 'scale(1)';
-    instruction.textContent = "";
-    countdownDisplay.textContent = "";
-    startButton.textContent = 'Start';
 }
