@@ -43,32 +43,34 @@ function startExercise() {
     startButton.style.display = 'none';
     progressBar.style.display = 'block';
     
+    // Start continuous progress update
+    startContinuousProgress();
+    
     setTimeout(() => {
         runBreathingCycle();
     }, 1000);
 }
 
-function stopExercise() {
-    console.log('Stopping exercise, resetting fish scale');
-    isExerciseRunning = false;
-    fish.style.transform = 'scale(1)';
-    instruction.textContent = "";
-    countdownDisplay.textContent = "";
+// Add continuous progress update function
+function startContinuousProgress() {
+    const totalDuration = 10 * 10000; // 10 breaths * 10 seconds each
+    const startTime = Date.now();
     
-    if (breathCount >= 10) {
-        // Exercise completed, show final button
-        progressBar.style.display = 'none';
-        startButton.style.display = 'block';
-        startButton.textContent = 'Do it again';
-    } else {
-        // Exercise interrupted, show start button
-        progressBar.style.display = 'none';
-        startButton.style.display = 'block';
-        startButton.textContent = 'Start';
+    function updateProgress() {
+        if (!isExerciseRunning) return;
+        
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min((elapsed / totalDuration) * 100, 100);
+        
+        progressFill.style.width = `${progress}%`;
+        progressText.textContent = `${Math.round(progress)}%`;
+        
+        if (progress < 100 && isExerciseRunning) {
+            requestAnimationFrame(updateProgress);
+        }
     }
     
-    progressFill.style.width = '0%';
-    progressText.textContent = '0%';
+    requestAnimationFrame(updateProgress);
 }
 
 function runBreathingCycle() {
@@ -76,12 +78,7 @@ function runBreathingCycle() {
     
     const cycleDuration = 4000;
     
-    // Update progress
-    const progress = (breathCount / 10) * 100;
-    progressFill.style.width = `${progress}%`;
-    progressText.textContent = `${Math.round(progress)}%`;
-    
-    // Inhale phase
+    // Remove progress update from here since it's now continuous
     createFloatingText('Inhale...');
     fish.style.transform = 'scale(0.5)';
     countdownDisplay.style.fontSize = '3.0em';
