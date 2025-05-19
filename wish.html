@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Make a Wish</title>
+    <link rel="stylesheet" href="wish.css" />
+</head>
+<body>
+    <div id="instruction">Make a wish as you tap the fish. Your wishes will float away.</div>
+    <div id="wish-input-container">
+        <input type="text" id="wish-input" placeholder="Type your wish here..." maxlength="50">
+        <button id="add-wish">Add Wish</button>
+    </div>
+    <div id="score">
+        🐟 Wishes Made: <span id="cumulative">0</span>
+    </div>
+    <div id="fish-container">
+        <div id="fish">
+            <img id="calm-fish" src="assets/images/calm-fish.png" alt="wooden fish" />            
+        </div>
+    </div>
+</body>
+<script src="wish.js"></script>
+</html>

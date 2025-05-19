@@ -1,0 +1,97 @@
+body {
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    background-color: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+}
+
+#instruction {
+    text-align: center;
+    margin: 20px;
+    font-size: 1.2em;
+    color: #666;
+}
+
+#wish-input-container {
+    display: flex;
+    gap: 10px;
+    margin: 20px;
+    width: 100%;
+    max-width: 400px;
+}
+
+#wish-input {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #666;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+#add-wish {
+    padding: 10px 20px;
+    background-color: #666;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#add-wish:hover {
+    background-color: #555;
+}
+
+#score {
+    font-size: 1.2em;
+    color: #666;
+    position: absolute;
+    bottom: 20px;  /* Changed from top: 30% to bottom: 20px to match tapping.css */
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#fish {
+    width: 150px;
+    position: absolute;
+    top: calc(70% - 30px);
+    left: calc(50% - 75px);
+    z-index: 2;
+    animation: floatFish 5s ease-in-out infinite;
+    transition: transform 0.05s ease-in-out;
+  }
+  
+  #fish img {
+    width: 100%;
+    position: absolute;
+    left: calc(50% - 75px);
+  }
+
+
+.floating-wish {
+    position: absolute;
+    left: 0;  /* Changed from right: 0 to left: 0 */
+    color: rgba(100, 100, 100, 0.25);
+    font-size: 1.8em;
+    font-style: italic;
+    font-weight: 700;
+    animation: floatAway 4s ease-in forwards;
+    z-index: 1;
+    pointer-events: none;
+}
+
+@keyframes floatAway {
+    0% {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(100vw) scale(1.5);  /* Changed from -100vw to 100vw */
+        opacity: 0;
+    }
+}
