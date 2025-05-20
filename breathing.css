@@ -104,3 +104,25 @@ body {
         opacity: 0;
     }
 }
+
+#fish-shadow {
+    width: 150px;  /* Match tapping.css fish size */
+    position: absolute;
+    top: calc(70% - 30px);  /* Match tapping.css fish position */
+    left: calc(50% - 75px);  /* Match tapping.css fish position */
+    transition: transform 0.3s ease;
+    transform: scale(1.5);
+    filter: grayscale();
+    opacity: 0.1;
+}
+
+#breath-counter {
+    font-size: 3.0em;
+    font-weight: 700;
+    color: #666666;
+    position: absolute;
+    top: 30%;  /* Match tapping.css countdown position */
+    left: 50%;
+    transform: translateX(-50%);
+    transition: opacity 0.5s ease;
+}

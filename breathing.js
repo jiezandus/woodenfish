@@ -1,174 +1,121 @@
 let isExerciseRunning = false;
 let breathCount = 0;
+let audioContext;
+let mediaStream;
+let analyser;
+let breathingPhase = 'inhale';
+let sustainedTargetBreath = 0;
+
 const fish = document.getElementById('fish');
 const startButton = document.getElementById('startButton');
 const instruction = document.getElementById('instruction');
 const countdownDisplay = document.getElementById('countdown');
 
-// Add smooth transition to fish
-fish.style.transition = 'transform 4s cubic-bezier(0.4, 0, 0.2, 1)';
+// Create breath counter
+const breathCounter = document.createElement('div');
+breathCounter.id = 'breath-counter';
+breathCounter.textContent = '0/10';
+document.body.appendChild(breathCounter);
 
-startButton.addEventListener('click', () => {
+// Create shadow fish element
+/*
+const fishShadow = document.createElement('div');
+fishShadow.id = 'fish-shadow';
+fishShadow.innerHTML = fish.innerHTML; // Copy the fish image
+fishShadow.style.transform = 'scale(1.5)'; // Target scale
+fish.parentNode.insertBefore(fishShadow, fish);
+*/
+
+// Add smooth transition to fish
+fish.style.transition = 'transform 0.3s ease-out';
+
+startButton.addEventListener('click', async () => {
     if (!isExerciseRunning) {
-        startExercise();
-        startButton.textContent = 'I give up';
+        try {
+            // Request microphone access
+            mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            startExercise();
+            startButton.textContent = 'Stop';
+        } catch (err) {
+            instruction.textContent = "Please allow microphone access to continue";
+            console.error('Error accessing microphone:', err);
+        }
     } else {
         stopExercise();
         startButton.textContent = 'Start';
     }
 });
 
-// Add progress bar elements at the start
-const progressBar = document.createElement('div');
-progressBar.id = 'progressBar';
-const progressFill = document.createElement('div');
-progressFill.id = 'progressFill';
-progressBar.appendChild(progressFill);
-document.body.appendChild(progressBar);
-
-// Add progress text element
-const progressText = document.createElement('div');
-progressText.id = 'progressText';
-progressBar.appendChild(progressText);
-
 function startExercise() {
     isExerciseRunning = true;
     breathCount = 0;
-    instruction.textContent = "";
-    countdownDisplay.textContent = "";
-    progressFill.style.width = '0%';
-    progressText.textContent = '0%';
+    breathCounter.textContent = '0/10';
+    instruction.textContent = "Breathe with the fish... Match the shadow!";
     
-    // Hide button, show progress bar
-    startButton.style.display = 'none';
-    progressBar.style.display = 'block';
+    // Initialize audio context and analyzer
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const source = audioContext.createMediaStreamSource(mediaStream);
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = 0.9;
+    source.connect(analyser);
     
-    // Start continuous progress update
-    startContinuousProgress();
-    
-    setTimeout(() => {
-        runBreathingCycle();
-    }, 1000);
+    monitorBreathing();
 }
 
-// Add continuous progress update function
-function startContinuousProgress() {
-    const totalDuration = 10 * 10000; // 10 breaths * 10 seconds each
-    const startTime = Date.now();
+function monitorBreathing() {
+    if (!isExerciseRunning) return;
+
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteFrequencyData(dataArray);
     
-    function updateProgress() {
-        if (!isExerciseRunning) return;
-        
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min((elapsed / totalDuration) * 100, 100);
-        
-        progressFill.style.width = `${progress}%`;
-        progressText.textContent = `${Math.round(progress)}%`;
-        
-        if (progress < 100 && isExerciseRunning) {
-            requestAnimationFrame(updateProgress);
+    const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+    const scale = 1 + Math.min(Math.max(average - 30, 0) / 100, 0.5);
+    
+    fish.style.transform = `scale(${scale})`;
+    
+    // Check if fish matches shadow size (1.5)
+    if (scale >= 1.45) { // Allow small margin of error
+        sustainedTargetBreath++;
+        if (sustainedTargetBreath >= 60) { // About 1 second at 60fps
+            if (breathingPhase === 'inhale') {
+                breathCount++;
+                breathCounter.textContent = `${breathCount}/10`;
+                instruction.textContent = "Great breath! Now exhale...";
+                breathingPhase = 'exhale';
+                
+                if (breathCount >= 10) {
+                    stopExercise();
+                    instruction.textContent = "Amazing! You've completed all 10 breaths!";
+                    startButton.textContent = "Start Again";
+                    return;
+                }
+            }
+        }
+        instruction.textContent = "Hold it...";
+    } else {
+        sustainedTargetBreath = 0;
+        if (scale < 1.2) {
+            instruction.textContent = "Inhale deeper... match the shadow!";
+            breathingPhase = 'inhale';
         }
     }
     
-    requestAnimationFrame(updateProgress);
+    requestAnimationFrame(monitorBreathing);
 }
 
 function stopExercise() {
     isExerciseRunning = false;
+    if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+    }
+    if (audioContext) {
+        audioContext.close();
+    }
     fish.style.transform = 'scale(1)';
-    startButton.style.display = 'block';
-    progressBar.style.display = 'none';
-    instruction.textContent = "";
-    countdownDisplay.textContent = "";
-}
-
-function runBreathingCycle() {
-    if (!isExerciseRunning) return;
-    
-    const cycleDuration = 4000;
-    
-    // Remove progress update from here since it's now continuous
-    createFloatingText('Inhale...');
-    fish.style.transform = 'scale(1.2)';
-    countdownDisplay.style.fontSize = '3.0em';
-    countdownDisplay.style.fontWeight = '700';
-    countdownDisplay.style.color = '#666666';
-    updateCountdown(Date.now(), cycleDuration);
-    
-    setTimeout(() => {
-        if (!isExerciseRunning) return;
-        
-        setTimeout(() => {
-            if (!isExerciseRunning) return;
-            
-            // Exhale phase
-            createFloatingText('Exhale...');
-            fish.style.transform = 'scale(0.6)';
-            updateCountdown(Date.now(), cycleDuration);
-            
-            setTimeout(() => {
-                if (!isExerciseRunning) return;
-                
-                setTimeout(() => {
-                    if (!isExerciseRunning) return;
-                    
-                    breathCount++;
-                    const newProgress = (breathCount / 10) * 100;
-                    progressFill.style.width = `${newProgress}%`;
-                    progressText.textContent = `${Math.round(newProgress)}%`;
-                    
-                    if (breathCount >= 10) {
-                        isExerciseRunning = false;
-                        fish.style.transform = 'scale(1)';
-                        instruction.textContent = "Amazing! You've completed 10 deep breaths. Feel calmer?";
-                        progressBar.style.display = 'none';
-                        startButton.style.display = 'block';
-                        startButton.textContent = 'Take another 10 breaths';
-                        countdownDisplay.textContent = "";
-                    } else {
-                        runBreathingCycle();
-                    }
-                }, 1000);
-            }, cycleDuration);
-        }, 1000);
-    }, cycleDuration);
-}
-
-// Add this new function to create floating text
-function createFloatingText(text) {
-    const textElement = document.createElement('div');
-    textElement.className = 'text-float';
-    textElement.textContent = text;
-    
-    // Position the text with more random positioning
-    const fishRect = fish.getBoundingClientRect();
-    const randomHorizontalOffset = (Math.random() - 0.5) * 300; // Increased from 100 to 200
-    const randomVerticalOffset = Math.random() * 100; // Random vertical offset up to 100px above fish
-    
-    textElement.style.left = `${fishRect.left + fishRect.width/2 + randomHorizontalOffset}px`;
-    textElement.style.top = `${fishRect.top - 50 - randomVerticalOffset}px`; // Start higher and vary vertically
-    
-    document.body.appendChild(textElement);
-    
-    // Remove the element after animation completes
-    setTimeout(() => {
-        textElement.remove();
-    }, 4000);
-}
-
-function updateCountdown(startTime, duration) {
-    const updateTimer = () => {
-        if (!isExerciseRunning) return;
-        
-        const currentTime = Date.now();
-        const elapsed = currentTime - startTime;
-        const count = Math.floor(elapsed / 1000) + 1; // Count up from 1
-        
-        if (count <= 4) { // Show numbers 1 through 4
-            countdownDisplay.textContent = count.toString();
-            requestAnimationFrame(updateTimer);
-        }
-    };
-    
-    updateTimer();
+    sustainedTargetBreath = 0;
+    if (breathCount < 10) {
+        instruction.textContent = "Click Start to begin";
+        breathCounter.textContent = '0/10';
+    }
 }
