@@ -43,10 +43,10 @@ body {
     left: 50%;
     transform: translateX(-50%);
     padding: 10px 20px;
-    font-size: 1.2em;
+    font-size: 1em;
     border: none;
     border-radius: 5px;
-    background-color: #666666;
+    background-color: #bababa;
     color: white;
     cursor: pointer;
     transition: background-color 0.3s ease;

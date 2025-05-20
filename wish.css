@@ -28,14 +28,14 @@ body {
 #wish-input {
     flex: 1;
     padding: 10px;
-    border: 2px solid #666;
+    border: 1px solid #9c9c9c;
     border-radius: 5px;
     font-size: 1em;
 }
 
 #add-wish {
     padding: 10px 20px;
-    background-color: #666;
+    background-color: #9c9c9c;
     color: white;
     border: none;
     border-radius: 5px;
@@ -72,6 +72,21 @@ body {
     left: calc(50% - 75px);
   }
 
+  #fish:active {
+    transform: scale(0.95);
+  }
+  
+  @keyframes floatFish {
+    0% {
+      top: calc(70% - 20px);
+    }
+    50% {
+      top: calc(70% - 40px);
+    }
+    100% {
+      top: calc(70% - 20px);
+    }
+  }
 
 .floating-wish {
     position: absolute;

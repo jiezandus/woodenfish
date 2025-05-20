@@ -73,6 +73,15 @@ function startContinuousProgress() {
     requestAnimationFrame(updateProgress);
 }
 
+function stopExercise() {
+    isExerciseRunning = false;
+    fish.style.transform = 'scale(1)';
+    startButton.style.display = 'block';
+    progressBar.style.display = 'none';
+    instruction.textContent = "";
+    countdownDisplay.textContent = "";
+}
+
 function runBreathingCycle() {
     if (!isExerciseRunning) return;
     
@@ -80,7 +89,7 @@ function runBreathingCycle() {
     
     // Remove progress update from here since it's now continuous
     createFloatingText('Inhale...');
-    fish.style.transform = 'scale(0.5)';
+    fish.style.transform = 'scale(1.2)';
     countdownDisplay.style.fontSize = '3.0em';
     countdownDisplay.style.fontWeight = '700';
     countdownDisplay.style.color = '#666666';
@@ -94,7 +103,7 @@ function runBreathingCycle() {
             
             // Exhale phase
             createFloatingText('Exhale...');
-            fish.style.transform = 'scale(1)';
+            fish.style.transform = 'scale(0.6)';
             updateCountdown(Date.now(), cycleDuration);
             
             setTimeout(() => {
@@ -109,9 +118,12 @@ function runBreathingCycle() {
                     progressText.textContent = `${Math.round(newProgress)}%`;
                     
                     if (breathCount >= 10) {
-                        stopExercise();
-                        instruction.textContent = "Great job! Let's move on, positively.";
-                        startButton.textContent = 'Do it again';
+                        isExerciseRunning = false;
+                        fish.style.transform = 'scale(1)';
+                        instruction.textContent = "Amazing! You've completed 10 deep breaths. Feel calmer?";
+                        progressBar.style.display = 'none';
+                        startButton.style.display = 'block';
+                        startButton.textContent = 'Take another 10 breaths';
                         countdownDisplay.textContent = "";
                     } else {
                         runBreathingCycle();
@@ -130,7 +142,7 @@ function createFloatingText(text) {
     
     // Position the text with more random positioning
     const fishRect = fish.getBoundingClientRect();
-    const randomHorizontalOffset = (Math.random() - 0.5) * 200; // Increased from 100 to 200
+    const randomHorizontalOffset = (Math.random() - 0.5) * 300; // Increased from 100 to 200
     const randomVerticalOffset = Math.random() * 100; // Random vertical offset up to 100px above fish
     
     textElement.style.left = `${fishRect.left + fishRect.width/2 + randomHorizontalOffset}px`;
