@@ -28,14 +28,15 @@ body {
 #wish-input {
     flex: 1;
     padding: 10px;
-    border: 1px solid #9c9c9c;
+    border: 1px solid #bababa;
     border-radius: 5px;
     font-size: 1em;
+    color: #bababa;
 }
 
 #add-wish {
     padding: 10px 20px;
-    background-color: #9c9c9c;
+    background-color: #bababa;
     color: white;
     border: none;
     border-radius: 5px;
@@ -106,7 +107,39 @@ body {
         opacity: 1;
     }
     100% {
-        transform: translateX(100vw) scale(1.5);  /* Changed from -100vw to 100vw */
+        transform: translateX(100vw) scale(1.5);
         opacity: 0;
     }
+}
+
+#mallet {
+    position: absolute;
+    width: 96px;
+    height: 96px;
+    pointer-events: none;
+    z-index: 3;
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+    transform: rotate(-45deg) scale(0.5);
+}
+
+#mallet.hit {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+}
+
+#mallet {
+    position: absolute;
+    width: 96px;
+    height: 96px;
+    pointer-events: none;
+    z-index: 3;
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+    transform: rotate(-45deg) scale(0.5);
+}
+
+#mallet.hit {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
 }
