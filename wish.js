@@ -51,6 +51,7 @@ function updateTimerDisplay() {
 // End the game when time is up
 function endGame() {
     clearInterval(countdownTimer);
+    countdownTimer = null; // Reset timer reference
     
     // Hide the instruction and fish elements
     instructionElement.classList.add('hidden');
@@ -61,6 +62,15 @@ function endGame() {
     
     // Show the summary
     summaryElement.classList.remove('hidden');
+    
+    // Hide the buttons initially
+    const buttonContainer = document.querySelector('.button-container');
+    buttonContainer.style.display = 'none';
+    
+    // Show buttons after 3 seconds
+    setTimeout(() => {
+        buttonContainer.style.display = 'flex';
+    }, 3000);
     
     // Display individual wish counts
     const wishCountsContainer = document.getElementById('wish-counts-container');
@@ -114,8 +124,9 @@ document.getElementById('return-main').addEventListener('click', () => {
     window.location.href = 'index.html';
 });
 
-// Start the countdown when the page loads
-startCountdown();
+// Timer will start only after the first wish is logged
+// We'll initialize the timer display without starting the countdown
+updateTimerDisplay();
 
 function saveWishes() {
     localStorage.setItem('wishes', JSON.stringify(wishes));
@@ -127,6 +138,11 @@ function addWish() {
         wishes.push(wishText);
         saveWishes();
         wishInput.value = '';
+        
+        // Start the countdown on first wish if it's not already running
+        if (!countdownTimer) {
+            startCountdown();
+        }
     }
 }
 
@@ -189,6 +205,11 @@ function updateFishAndWishes() {
     // Increment tap count
     tapCount++;
     cumulativeDisplay.textContent = tapCount;
+    
+    // Start the countdown on first tap if it's not already running
+    if (!countdownTimer) {
+        startCountdown();
+    }
     
     // Fish animation and color change
     fish.style.transform = 'scale(0.95)';

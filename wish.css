@@ -113,21 +113,24 @@ body {
 
 #play-again, #return-main {
     padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
+    color: #333;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
-    transition: background-color 0.3s;
+    transition: all 0.3s;
+}
+
+#play-again {
+    background-color: rgba(144, 238, 144, 0.7); /* Light green with transparency */
 }
 
 #return-main {
-    background-color: #2196F3;
+    background-color: rgba(255, 182, 193, 0.7); /* Light pink with transparency */
 }
 
 #play-again:hover, #return-main:hover {
-    opacity: 0.9;
+    opacity: 0.8;
 }
 
 .hidden {
