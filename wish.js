@@ -63,13 +63,18 @@ function endGame() {
     // Show the summary
     summaryElement.classList.remove('hidden');
     
-    // Hide the buttons initially
-    const buttonContainer = document.querySelector('.button-container');
-    buttonContainer.style.display = 'none';
+    // Make buttons invisible initially but maintain their space
+    const buttons = document.querySelectorAll('#play-again, #return-main');
+    buttons.forEach(button => {
+        button.style.opacity = '0';
+    });
     
     // Show buttons after 3 seconds
     setTimeout(() => {
-        buttonContainer.style.display = 'flex';
+        buttons.forEach(button => {
+            button.style.opacity = '1';
+            button.style.transition = 'opacity 0.5s ease-in';
+        });
     }, 3000);
     
     // Display individual wish counts
