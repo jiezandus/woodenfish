@@ -12,8 +12,20 @@
         <input type="text" id="wish-input" placeholder="Type your wish here..." maxlength="50">
         <button id="add-wish">Add Wish</button>
     </div>
+    <div id="timer">
+        🕒 Time Left: <span id="countdown">60</span>s
+    </div>
     <div id="score">
         🐟 Wishes Made: <span id="cumulative">0</span>
+    </div>
+    <div id="summary" class="hidden">
+        <h2>The fish has heard you!</h2>
+        <div id="wish-counts-container"></div>
+        <p>May they all come true!</p>
+        <div class="button-container">
+            <button id="play-again">Again</button>
+            <button id="return-main">Return</button>
+        </div>
     </div>
     <div id="fish-container">
         <div id="fish">

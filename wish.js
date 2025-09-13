@@ -4,6 +4,17 @@ const calmFish = document.getElementById('calm-fish');
 const cumulativeDisplay = document.getElementById('cumulative');
 const wishInput = document.getElementById('wish-input');
 const addWishButton = document.getElementById('add-wish');
+const countdownDisplay = document.getElementById('countdown');
+const summaryElement = document.getElementById('summary');
+const finalCountDisplay = document.getElementById('final-count');
+const instructionElement = document.getElementById('instruction');
+const wishInputContainer = document.getElementById('wish-input-container');
+const timerElement = document.getElementById('timer');
+const scoreElement = document.getElementById('score');
+
+// Timer variables
+let timeLeft = 60; // 1 minute in seconds
+let countdownTimer;
 
 const mallet = document.getElementById('mallet');
 let inactivityTimer;
@@ -12,8 +23,99 @@ let isTouching = false;
 // Clear localStorage on page load/refresh
 localStorage.removeItem('wishes');
 
-// Initialize wishes array
+// Initialize wishes array and wish counts map
 let wishes = [];
+let wishCounts = new Map(); // Map to track individual wish counts
+
+// Start the countdown timer when the page loads
+function startCountdown() {
+    // Display initial time
+    updateTimerDisplay();
+    
+    // Start the countdown
+    countdownTimer = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+        
+        if (timeLeft <= 0) {
+            endGame();
+        }
+    }, 1000);
+}
+
+// Update the timer display
+function updateTimerDisplay() {
+    countdownDisplay.textContent = ` ${timeLeft}`;
+}
+
+// End the game when time is up
+function endGame() {
+    clearInterval(countdownTimer);
+    
+    // Hide the instruction and fish elements
+    instructionElement.classList.add('hidden');
+    fish.classList.add('hidden');
+    mallet.classList.add('hidden');
+    timerElement.classList.add('hidden');
+    scoreElement.classList.add('hidden');
+    
+    // Show the summary
+    summaryElement.classList.remove('hidden');
+    
+    // Display individual wish counts
+    const wishCountsContainer = document.getElementById('wish-counts-container');
+    wishCountsContainer.innerHTML = ''; // Clear previous content
+    
+    if (wishCounts.size === 0) {
+        wishCountsContainer.innerHTML = '<p class="wish-count-item">No wishes were made in this session.</p>';
+    } else {
+        // Sort wishes by count (descending)
+        const sortedWishes = [...wishCounts.entries()].sort((a, b) => b[1] - a[1]);
+        
+        for (const [wish, count] of sortedWishes) {
+            const countText = count === 1 ? 'echo' : 'echoes';
+            const wishItem = document.createElement('p');
+            wishItem.className = 'wish-count-item';
+            wishItem.textContent = `"${wish}" received ${count} ${countText}`;
+            wishCountsContainer.appendChild(wishItem);
+        }
+    }
+    
+    // Show the wish input if it was hidden
+    wishInputContainer.classList.remove('hidden');
+}
+
+// Button event listeners
+document.getElementById('play-again').addEventListener('click', () => {
+    // Reset the game state
+    tapCount = 0;
+    timeLeft = 60;
+    wishCounts.clear(); // Reset wish counts
+    
+    // Show the game elements
+    instructionElement.classList.remove('hidden');
+    fish.classList.remove('hidden');
+    mallet.classList.remove('hidden');
+    timerElement.classList.remove('hidden');
+    scoreElement.classList.remove('hidden');
+    
+    // Hide the summary
+    summaryElement.classList.add('hidden');
+    
+    // Update displays
+    cumulativeDisplay.textContent = tapCount;
+    
+    // Restart the countdown
+    startCountdown();
+});
+
+document.getElementById('return-main').addEventListener('click', () => {
+    // Navigate to the main page
+    window.location.href = 'index.html';
+});
+
+// Start the countdown when the page loads
+startCountdown();
 
 function saveWishes() {
     localStorage.setItem('wishes', JSON.stringify(wishes));
@@ -99,6 +201,14 @@ function updateFishAndWishes() {
     // Show random wish if available
     if (wishes.length > 0) {
         const randomWish = wishes[Math.floor(Math.random() * wishes.length)];
+        
+        // Update wish count
+        if (wishCounts.has(randomWish)) {
+            wishCounts.set(randomWish, wishCounts.get(randomWish) + 1);
+        } else {
+            wishCounts.set(randomWish, 1);
+        }
+        
         createFloatingWish(randomWish);
     }
 }
